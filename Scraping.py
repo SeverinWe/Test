@@ -13,7 +13,7 @@ for filename in os.listdir(Directory):
         firstpage = file.getPage(0)
         text = firstpage.extractText()
 
-        summary = re.search(r"(?:summary[:]?[\s]?|background|purpose)(.*?)(?:objective|background|methods|results|conclusion)", text, flags=re.IGNORECASE | re.MULTILINE)
+        summary = re.search(r"(?:summary[:]?[\s]?|background|purpose|)(.*?)(?:objective|background|methods|results|conclusion)", text, flags=re.IGNORECASE | re.MULTILINE)
         summaryGroup = summary.group(1)
         print(summaryGroup)
         #if not summary:
