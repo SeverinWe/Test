@@ -1,5 +1,6 @@
  
 import os
+from unittest import result
 import PyPDF2
 import re
 
@@ -70,6 +71,10 @@ for filename in os.listdir(Directory):
             ResSearch4 = re.search(keyword, conclusionGroup)
             if ResSearch4:
                 print("found Exclusion criteria", "'",keyword,"'", "in conclusion")
+                
+        with open('/Users/severinwendelspiess/Documents/Universität/Dissertation/Test/newfile/filename.txt', 'w') as f:
+            f.write(summaryGroup)
+
     else:
         continue
 
