@@ -1,86 +1,49 @@
- 
+
 import os
-from unittest import result
 import PyPDF2
 import re
 
-keywords = ["female", "cancer", "male","using"]
-Directory = '/Users/severinwendelspiess/Documents/Universität/Dissertation/Test/'
+keywords = ["female", "cancer", "male", "using"]
+current_directory = os.path.dirname(os.path.realpath(__file__))
+pdf_directory = current_directory + "/pdfs"
 
-for filename in os.listdir(Directory):
-    if filename.endswith(".pdf"): 
+summary_regex = r"(?:summary[:]?[\s]?|background|purpose|)(.*?)(?:objective|background|methods|results|conclusion)"
+background_regex = r"(?:background[s]?[:]?)(.*?)(?:Method[s]?|Result[s]?|Conclusion[s]?)"
+methods_regex = r"(?:method[s]?[:]?)(.*?)(?:Result[s]?|Conclusion[s]?)"
+results_regex = r"(?:result[s]?[:]?)(.*?)(?:Conclusion[s]?)"
+conclusion_regex = r"(?:conclusion[s]?[:]?)(.*)"
+
+
+def searchTextAndPrint(regex, text, section_name):
+    searchResult = re.search(regex, text, flags=re.IGNORECASE | re.MULTILINE)
+    # only read .group(1) if summary is not None, otherwise we'll get an error
+    if searchResult:
+        print(searchResult.group(0))
+        for keyword in keywords:
+            exclusionResult = re.search(keyword, searchResult.group(
+                1), flags=re.IGNORECASE | re.MULTILINE)
+            if exclusionResult:
+                print(f"Keyword '{keyword}' found in {section_name} section")
+
+
+for filename in os.listdir(pdf_directory):
+    if filename.endswith(".pdf"):
         print(filename)
-        file = PyPDF2.PdfFileReader(filename)
-        firstpage = file.getPage(0)
-        text = firstpage.extractText()
+        full_file_name = os.path.join(pdf_directory, filename)
+        file_obj = open(full_file_name, "rb")  # rb => read binray
+        pdf_file = PyPDF2.PdfFileReader(file_obj, strict=False)
+        first_page = pdf_file.getPage(0)
+        first_page_text = first_page.extractText()
 
-        summary = re.search(r"(?:summary[:]?[\s]?|background|purpose|)(.*?)(?:objective|background|methods|results|conclusion)", text, flags=re.IGNORECASE | re.MULTILINE)
-        summaryGroup = summary.group(1)
-        print(summaryGroup)
-        #if not summary:
-            #print(file, "summary not found")
-
-        background = re.search(r"(?:background[s]?[:]?)(.*?)(?:Method[s]?|Result[s]?|Conclusion[s]?)", text, flags=re.IGNORECASE|re.MULTILINE)
-        backgroundGroup = background.group(1)
-        print(backgroundGroup)
-            #if not background:
-                #print(file, "background not found")
-            
-        methods = re.search(r"(?:method[s]?[:]?)(.*?)(?:Result[s]?|Conclusion[s]?)",text,flags=re.IGNORECASE|re.MULTILINE)
-        methodsGroup = methods.group(1)
-        print(methodsGroup)
-            #if not methods:
-                #print(file, "methods not found")
-            
-        results = re.search(r"(?:result[s]?[:]?)(.*?)(?:Conclusion[s]?)",text, flags=re.IGNORECASE|re.MULTILINE)
-        resultsGroup = results.group(1)
-        print(resultsGroup)
-            #if not results:
-                #print(file, "results not found")
-    
-        conclusion =   re.search(r"(?:conclusion[s]?[:]?)(.*)", text, flags=re.IGNORECASE|re.MULTILINE)
-        conclusionGroup = conclusion.group(1)
-        print(conclusionGroup)
-            #if not conclusion:
-                #print(file, "conclusion not found")
-     
-        
-        for keyword in keywords:
-            ResSearch = re.search(keyword, summaryGroup)
-            if ResSearch:
-                print("found Exclusion criteria", "'",keyword,"'", "in summary")
-            
-        for keyword in keywords:
-            ResSearch1 = re.search(keyword, backgroundGroup)
-            if ResSearch1:
-                print("found Exclusion criteria", "'",keyword,"'", "in background")
-        
-        
-        for keyword in keywords:
-            ResSearch2 = re.search(keyword, methodsGroup)
-            if ResSearch2:
-                print("found Exclusion criteria", "'",keyword,"'", "in methods")
-
-        for keyword in keywords:
-            ResSearch3 = re.search(keyword, resultsGroup)
-            if ResSearch3:
-                print("found Exclusion criteria", "'",keyword,"'", "in results")
-                
-            
-        for keyword in keywords:
-            ResSearch4 = re.search(keyword, conclusionGroup)
-            if ResSearch4:
-                print("found Exclusion criteria", "'",keyword,"'", "in conclusion")
-                
-        with open('/Users/severinwendelspiess/Documents/Universität/Dissertation/Test/newfile/filename.txt', 'w') as f:
-            f.write(summaryGroup)
-
+        searchTextAndPrint(regex=summary_regex,
+                           text=first_page_text, section_name="Summary")
+        searchTextAndPrint(regex=background_regex,
+                           text=first_page_text, section_name="Background")
+        searchTextAndPrint(regex=methods_regex,
+                           text=first_page_text, section_name="Methods")
+        searchTextAndPrint(regex=results_regex,
+                           text=first_page_text, section_name="Results")
+        searchTextAndPrint(regex=conclusion_regex,
+                           text=first_page_text, section_name="Conclusion")
     else:
         continue
-
-
-
- 
- 
-
-   
